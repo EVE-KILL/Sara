@@ -13,10 +13,10 @@ const interactionPlugins = [];
 const messagePlugins = [];
 
 // Load onInteraction plugins
-await loadPlugins('./onInteraction', interactionPlugins, null);
+await loadPlugins('./onInteraction', interactionPlugins, 'interaction');
 
 // Load onMessage plugins
-await loadPlugins('./onMessage', null, messagePlugins);
+await loadPlugins('./onMessage', messagePlugins, 'message');
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;

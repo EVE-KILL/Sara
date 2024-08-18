@@ -52,18 +52,18 @@ export async function registerSlashCommands(commands) {
 }
 
 // Function to dynamically load plugins
-export async function loadPlugins(pluginDirectory, onInteraction, onMessage) {
+export async function loadPlugins(pluginDirectory, pluginList, type = '') {
     const pluginPath = path.resolve(pluginDirectory);
     fs.readdirSync(pluginPath).forEach(async file => {
         const { default: handler, commands } = await import(path.join(pluginPath, file));
         if (commands) {
             await registerSlashCommands([commands]);
         }
-        if (onInteraction) {
-            onInteraction.push(handler);
+        if (type === 'interaction') {
+            pluginList.push(handler);
         }
-        if (onMessage) {
-            onMessage.push(handler);
+        if (type === 'message') {
+            pluginList.push(handler);
         }
     });
 }
