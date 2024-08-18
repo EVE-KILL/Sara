@@ -1,7 +1,9 @@
 import { splitMessageIntoChunks } from '../helper.js';
 import { Config } from '../config.js';
 
-export default async function AI(client, message) {
+const replyCache = new Map(); // Store original user message ID and bot reply message ID
+
+async function AI(client, message, botReply = null) {
     // Ignore certain channel_ids
     let ignoredChannelIds = Config.ignoredChannelIds || [];
     if (ignoredChannelIds.includes(message.channel.id)) {
@@ -15,9 +17,9 @@ export default async function AI(client, message) {
     }
 
     // 5% chance of answering
-    let percentChangeOfAnswring = 0.05;
+    let percentChangeOfAnswering = 0.05;
     let random = Math.random();
-    let randomAnswer = false; //random < percentChangeOfAnswring;
+    let randomAnswer = false; // random < percentChangeOfAnswering;
 
     if ((message.mentions.has(client.user) && !message.author.bot) || (!message.author.bot && randomAnswer)) {
         // Show that we're typing
@@ -98,16 +100,36 @@ export default async function AI(client, message) {
             let messageContent = data.choices?.[0]?.message?.content;
             const reply = messageContent?.message || messageContent || 'No response received.';
 
-            // Split the reply into chunks if necessary and send them sequentially
+            // Split the reply into chunks if necessary
             const chunks = splitMessageIntoChunks(reply);
 
-            for (const chunk of chunks) {
-                await message.reply(chunk);
+            if (botReply) {
+                // If botReply is defined, edit the existing bot message
+                await botReply.edit(chunks[0]);
+                for (let i = 1; i < chunks.length; i++) {
+                    await message.channel.send(chunks[i]);
+                }
+            } else {
+                // Otherwise, send a new reply and store it in the cache
+                const replyMessage = await message.reply(chunks[0]);
+                replyCache.set(message.id, replyMessage); // Cache the user message ID and bot reply message
+                for (let i = 1; i < chunks.length; i++) {
+                    await message.channel.send(chunks[i]);
+                }
             }
 
         } catch (error) {
             console.error('Error while making API request:', error);
-            await message.reply('There was an error processing your request.');
+            if (botReply) {
+                await botReply.edit('There was an error processing your request.');
+            } else {
+                await message.reply('There was an error processing your request.');
+            }
         }
     }
 }
+
+AI.handlesMessageUpdate = true; // Indicate that this plugin should handle message updates
+
+export default AI;
+export { replyCache };

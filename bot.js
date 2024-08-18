@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import { loadPlugins } from './helper.js';
 import { Config } from './config.js';
+import { replyCache } from './onMessage/AI.js'; // Import replyCache from AI plugin
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers] });
 
@@ -26,8 +27,22 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('messageCreate', async message => {
+    // Trigger all message plugins on message creation
     for (const plugin of messagePlugins) {
         plugin(client, message);
+    }
+});
+
+client.on('messageUpdate', async (oldMessage, newMessage) => {
+    // Check if the bot has already replied to this message
+    if (replyCache.has(newMessage.id)) {
+        const botReply = replyCache.get(newMessage.id);
+        for (const plugin of messagePlugins) {
+            // Only trigger plugins that handle message updates
+            if (plugin.handlesMessageUpdate) {
+                await plugin(client, newMessage, botReply);
+            }
+        }
     }
 });
 

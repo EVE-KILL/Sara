@@ -5,6 +5,6 @@ export const command = {
 
 export default async function Ping(interaction, client) {
     if (interaction.commandName === 'ping') {
-        await interaction.reply('Ping!');
+        await interaction.reply('Ping!', { ephemeral: true });
     }
 }
