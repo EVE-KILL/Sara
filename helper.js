@@ -44,11 +44,11 @@ export const splitMessageIntoChunks = (message, chunkSize = 2000) => {
 export async function registerSlashCommands(commands) {
     const rest = new REST({ version: '10' }).setToken(Config.token);
 
-    console.log('Registering slash commands...');
+    console.log('Registering slash command: ' + commands[0].name);
 
     await rest.put(Routes.applicationCommands(Config.clientId), { body: commands });
 
-    console.log('Slash commands registered successfully.');
+    console.log(commands[0].name + ' registered successfully.');
 }
 
 // Function to dynamically load plugins

@@ -1,7 +1,7 @@
 import { splitMessageIntoChunks } from '../helper.js';
 import { Config } from '../config.js';
 
-export default async function aiHandler(client, message) {
+export default async function AI(client, message) {
     // Ignore certain channel_ids
     let ignoredChannelIds = Config.ignoredChannelIds || [];
     if (ignoredChannelIds.includes(message.channel.id)) {
