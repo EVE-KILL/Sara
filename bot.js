@@ -40,3 +40,10 @@ client.on('guildDelete', guild => {
 });
 
 client.login(Config.token);
+
+// When the user presses ctrl+c to exit the bot cleanly
+process.on('SIGINT', async () => {
+    console.log('Exiting...');
+    await client.destroy();
+    process.exit();
+});
