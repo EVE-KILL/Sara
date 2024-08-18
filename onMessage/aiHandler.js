@@ -19,9 +19,6 @@ export default async function aiHandler(client, message) {
     let random = Math.random();
     let randomAnswer = random < percentChangeOfAnswring;
 
-    console.log(percentChangeOfAnswring);
-    console.log(random);
-
     if ((message.mentions.has(client.user) && !message.author.bot) || (!message.author.bot && randomAnswer)) {
         // Show that we're typing
         await message.channel.sendTyping();
