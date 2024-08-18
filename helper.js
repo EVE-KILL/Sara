@@ -55,9 +55,9 @@ export async function registerSlashCommands(commands) {
 export async function loadPlugins(pluginDirectory, pluginList, type = '') {
     const pluginPath = path.resolve(pluginDirectory);
     fs.readdirSync(pluginPath).forEach(async file => {
-        const { default: handler, commands } = await import(path.join(pluginPath, file));
-        if (commands) {
-            await registerSlashCommands([commands]);
+        const { default: handler, command } = await import(path.join(pluginPath, file));
+        if (command) {
+            await registerSlashCommands([command]);
         }
         if (type === 'interaction') {
             pluginList.push(handler);

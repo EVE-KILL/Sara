@@ -17,7 +17,7 @@ export default async function AI(client, message) {
     // 5% chance of answering
     let percentChangeOfAnswring = 0.05;
     let random = Math.random();
-    let randomAnswer = random < percentChangeOfAnswring;
+    let randomAnswer = false; //random < percentChangeOfAnswring;
 
     if ((message.mentions.has(client.user) && !message.author.bot) || (!message.author.bot && randomAnswer)) {
         // Show that we're typing

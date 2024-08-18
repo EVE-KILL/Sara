@@ -21,13 +21,13 @@ await loadPlugins('./onMessage', messagePlugins, 'message');
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
     for (const plugin of interactionPlugins) {
-        await plugin(interaction);
+        plugin(interaction, client);
     }
 });
 
 client.on('messageCreate', async message => {
     for (const plugin of messagePlugins) {
-        await plugin(client, message);
+        plugin(client, message);
     }
 });
 
