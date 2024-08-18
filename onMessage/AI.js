@@ -28,9 +28,15 @@ export default async function AI(client, message) {
 
         // Construct the array for OpenAI API with username and message content
         const chatHistory = messages.map(msg => {
+            let response = JSON.stringify({
+                content: msg.content,
+                author: '@' + (msg.member?.nickname || msg.author.username),
+                time: msg.createdTimestamp
+            });
+
             return {
                 role: 'user',
-                content: msg.content
+                content: response
             };
         }).reverse();  // Reverse the array to maintain chronological order
 

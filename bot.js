@@ -2,7 +2,7 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import { loadPlugins } from './helper.js';
 import { Config } from './config.js';
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers] });
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -13,10 +13,10 @@ const interactionPlugins = [];
 const messagePlugins = [];
 
 // Load onInteraction plugins
-await loadPlugins('./onInteraction', interactionPlugins, 'interaction');
+loadPlugins('./onInteraction', interactionPlugins, 'interaction');
 
 // Load onMessage plugins
-await loadPlugins('./onMessage', messagePlugins, 'message');
+loadPlugins('./onMessage', messagePlugins, 'message');
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
@@ -29,6 +29,14 @@ client.on('messageCreate', async message => {
     for (const plugin of messagePlugins) {
         plugin(client, message);
     }
+});
+
+client.on('guildCreate', guild => {
+    console.log(`Joined a new guild: ${guild.name}`);
+});
+
+client.on('guildDelete', guild => {
+    console.log(`Left a guild: ${guild.name}`);
 });
 
 client.login(Config.token);

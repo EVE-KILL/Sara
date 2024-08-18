@@ -25,7 +25,7 @@ export default async function About(interaction, client) {
                 { name: 'Version', value: version, inline: false },
                 { name: 'Developer', value: '@lilllamah', inline: false },
                 { name: 'Source Code', value: '[GitHub](https://github.com/EVE-KILL/Sara)', inline: false },
-                { name: 'Invite Link wee', value: `[Invite me to your server](${inviteLink})`, inline: false }
+                { name: 'Invite Link', value: `[Invite me to your server](${inviteLink})`, inline: false }
             )
             .setColor(0x00AE86) // Set a color for the embed
             .setTimestamp(); // Adds a timestamp to the embed
