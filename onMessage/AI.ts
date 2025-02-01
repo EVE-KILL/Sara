@@ -2,8 +2,9 @@ import { splitMessageIntoChunks } from '../helper.js';
 import { Config } from '../config.js';
 
 const replyCache = new Map(); // Store original user message ID and bot reply message ID
+const excludedMessageIds = new Set(); // Store IDs of flagged messages
 
-async function AI(client, message, botReply = null) {
+export default async function AI(client, message, botReply = null) {
     // Ignore certain channel_ids
     let ignoredChannelIds = Config.ignoredChannelIds || [];
     if (ignoredChannelIds.includes(message.channel.id)) {
@@ -16,36 +17,34 @@ async function AI(client, message, botReply = null) {
         return;
     }
 
-    // 5% chance of answering
-    let percentChangeOfAnswering = 0.05;
-    let random = Math.random();
-    let randomAnswer = false; // random < percentChangeOfAnswering;
-
-    if ((message.mentions.has(client.user) && !message.author.bot) || (!message.author.bot && randomAnswer)) {
+    if ((message.mentions.has(client.user) && !message.author.bot)) {
         // Show that we're typing
         await message.channel.sendTyping();
 
         // Fetch last 25 messages
-        const messages = await message.channel.messages.fetch({ limit: 25 });
+        const messages = await message.channel.messages.fetch({ limit: 50 });
 
-        // Construct the array for OpenAI API with username and message content
-        const chatHistory = messages.map(msg => {
-            let response = JSON.stringify({
-                content: msg.content,
-                author: '@' + (msg.member?.nickname || msg.author.username),
-                time: msg.createdTimestamp
-            });
+        // Filter out excluded messages and construct the array for OpenAI API
+        const chatHistory = messages
+            .filter(msg => !excludedMessageIds.has(msg.id)) // Exclude flagged messages
+            .map(msg => {
+                let response = JSON.stringify({
+                    content: msg.content,
+                    author: (msg.member?.nickname || msg.author.username),
+                    authorId: msg.author.id,
+                    time: msg.createdTimestamp
+                });
 
-            return {
-                role: 'user',
-                content: response
-            };
-        }).reverse();  // Reverse the array to maintain chronological order
+                return {
+                    role: 'user',
+                    content: response
+                };
+            }).reverse();  // Reverse the array to maintain chronological order
 
         // Add the systemPrompt as the first message
         chatHistory.unshift({
             role: 'system',
-            content: randomAnswer ? Config.randomAnswerPrompt : Config.systemPrompt
+            content: Config.systemPrompt
         });
 
         // Prepare the request payload for OpenAI moderation
@@ -74,7 +73,10 @@ async function AI(client, message, botReply = null) {
                 moderationData.results[0].categories['violence'];
 
             if (flagged) {
-                // If the content is flagged, reply with an error message
+                // If the content is flagged, add the message ID to the excludedMessageIds list
+                messages.forEach(msg => excludedMessageIds.add(msg.id));
+
+                // Reply with an error message and exit
                 await message.reply('Your message contains content that is not allowed.');
                 return;
             }
@@ -100,8 +102,11 @@ async function AI(client, message, botReply = null) {
             let messageContent = data.choices?.[0]?.message?.content;
             const reply = messageContent?.message || messageContent || 'No response received.';
 
+            // Replace <@name> and @name with proper <@id>
+            const formattedReply = await replaceMentionsWithIds(reply, message.guild);
+
             // Split the reply into chunks if necessary
-            const chunks = splitMessageIntoChunks(reply);
+            const chunks = splitMessageIntoChunks(formattedReply);
 
             if (botReply) {
                 // If botReply is defined, edit the existing bot message
@@ -129,7 +134,30 @@ async function AI(client, message, botReply = null) {
     }
 }
 
-AI.handlesMessageUpdate = true; // Indicate that this plugin should handle message updates
+// Function to replace mentions with proper <@id> format
+async function replaceMentionsWithIds(reply, guild) {
+    // Regex to find all instances of <@name> and @name
+    const mentionRegex = /<@(\w+)>|@(\w+)/g;
+    let matches;
 
-export default AI;
+    // Replace the matches
+    while ((matches = mentionRegex.exec(reply)) !== null) {
+        const username = matches[1] || matches[2];
+
+        // Try to find a member by nickname or username
+        const member = guild.members.cache.find(m =>
+            m.user.username.toLowerCase() === username.toLowerCase() ||
+            (m.nickname && m.nickname.toLowerCase() === username.toLowerCase())
+        );
+
+        if (member) {
+            // Replace the mention with the proper <@id> format
+            reply = reply.replace(matches[0], `<@${member.user.id}>`);
+        }
+    }
+
+    return reply;
+}
+
+// Export the replyCache so that it can be accessed by other parts of the bot
 export { replyCache };

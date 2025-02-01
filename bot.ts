@@ -6,7 +6,17 @@ import { replyCache } from './onMessage/AI.js'; // Import replyCache from AI plu
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers] });
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    if (client.user) {
+        console.log(`Logged in as ${client.user.tag}!`);
+        // Emit invite link when we start the bot so we don't have to rely on the /about
+        const inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=274881563713&scope=bot`;
+        console.log(`Invite link: ${inviteLink}`);
+        // What servers are we connected to ?
+        console.log('Connected to servers:');
+        for (const guild of client.guilds.cache) {
+            console.log(guild[1].name);
+        }
+    }
 });
 
 // Arrays to hold the loaded plugins
