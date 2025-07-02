@@ -6,10 +6,16 @@
   "author": "Michael Karbowiak",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "start": "bun run bot.ts",
+    "task": "bun run task.ts"
+  },
   "dependencies": {
-    "@tobyg74/tiktok-api-dl": "github:TobyG74/tiktok-api-dl",
+    "@tobyg74/tiktok-api-dl": "^1.3.2",
+    "@types/bun": "^1.2.17",
     "chalk": "^5.4.1",
-    "discord.js": "^14.17.3",
-    "moment": "^2.30.1"
+    "discord.js": "^14.21.0",
+    "moment": "^2.30.1",
+    "openai": "^5.8.2"
   }
 }

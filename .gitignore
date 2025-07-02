@@ -1,2 +1,7 @@
 node_modules/
 config.ts
+temp/
+database.sqlite
+database.sqlite-shm
+database.sqlite-wal
+.vscode/

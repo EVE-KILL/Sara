@@ -1,10 +1,12 @@
+import { MessageFlags } from 'discord.js';
+
 export const command = {
     name: 'ping',
     description: 'Replies with Pong!'
 };
 
-export default async function Ping(interaction, client) {
+export default async function Ping(interaction: any, client: any) {
     if (interaction.commandName === 'ping') {
-        await interaction.reply('Ping!', { ephemeral: true });
+        await interaction.reply({ content: 'Ping!', flags: MessageFlags.Ephemeral });
     }
 }

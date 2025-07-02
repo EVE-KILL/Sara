@@ -1,0 +1,145 @@
+import { AttachmentBuilder, SlashCommandBuilder } from 'discord.js';
+import { Config } from '../config.js';
+import OpenAI from 'openai';
+
+export const command = {
+    name: 'image',
+    description: 'Generate an image using AI',
+    options: [
+        {
+            name: 'prompt',
+            description: 'Description of the image you want to generate',
+            type: 3, // STRING type
+            required: true
+        },
+        {
+            name: 'size',
+            description: 'Size of the generated image',
+            type: 3, // STRING type
+            required: false,
+            choices: [
+                { name: '1024x1024 (Square)', value: '1024x1024' },
+                { name: '1792x1024 (Landscape)', value: '1792x1024' },
+                { name: '1024x1792 (Portrait)', value: '1024x1792' }
+            ]
+        },
+        {
+            name: 'quality',
+            description: 'Quality of the generated image',
+            type: 3, // STRING type
+            required: false,
+            choices: [
+                { name: 'Standard', value: 'standard' },
+                { name: 'HD', value: 'hd' }
+            ]
+        },
+        {
+            name: 'style',
+            description: 'Style of the generated image',
+            type: 3, // STRING type
+            required: false,
+            choices: [
+                { name: 'Photorealistic', value: 'photorealistic' },
+                { name: 'Anime/Manga', value: 'anime' },
+                { name: 'Digital Art', value: 'digital art' },
+                { name: 'Oil Painting', value: 'oil painting' },
+                { name: 'Watercolor', value: 'watercolor' },
+                { name: 'Sketch/Drawing', value: 'sketch' },
+                { name: 'Cartoon', value: 'cartoon' },
+                { name: 'Cyberpunk', value: 'cyberpunk' },
+                { name: 'Fantasy Art', value: 'fantasy' },
+                { name: 'Minimalist', value: 'minimalist' },
+                { name: 'Vintage/Retro', value: 'vintage' },
+                { name: '3D Render', value: '3d render' },
+                { name: 'Pixel Art', value: 'pixel art' },
+                { name: 'Comic Book', value: 'comic book' },
+                { name: 'Art Nouveau', value: 'art nouveau' },
+                { name: 'Steampunk', value: 'steampunk' },
+                { name: 'Surreal', value: 'surreal' },
+                { name: 'Pop Art', value: 'pop art' },
+                { name: 'Impressionist', value: 'impressionist' },
+                { name: 'Gothic', value: 'gothic' },
+                { name: 'Vivid (Original)', value: 'vivid' },
+                { name: 'Natural (Original)', value: 'natural' }
+            ]
+        }
+    ]
+};
+
+export default async function Image(interaction, client) {
+    if (interaction.commandName === 'image') {
+        await interaction.deferReply();
+
+        try {
+            const prompt = interaction.options.getString('prompt');
+            const size = interaction.options.getString('size') || '1024x1024';
+            const quality = interaction.options.getString('quality') || 'standard';
+            const style = interaction.options.getString('style') || 'vivid';
+
+            // Validate that we're using OpenAI (simplified since we only support OpenAI now)
+            if (!Config.openai_api_key) {
+                await interaction.editReply('❌ OpenAI API key is not configured.');
+                return;
+            }
+
+            // Check if the model supports image generation
+            const supportedModels = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'];
+            if (!supportedModels.includes(Config.openai_model)) {
+                await interaction.editReply(`❌ Image generation is not supported with model ${Config.openai_model}. Supported models: ${supportedModels.join(', ')}`);
+                return;
+            }
+
+            await interaction.editReply('🎨 Generating your image, please wait...');
+
+            // Initialize OpenAI client
+            const openai = new OpenAI({
+                apiKey: Config.openai_api_key
+            });
+
+            // Enhance the prompt with style information
+            let enhancedPrompt = prompt;
+            if (style && style !== 'vivid' && style !== 'natural') {
+                enhancedPrompt = `${prompt}, in ${style} style`;
+            }
+
+            // Use the OpenAI library for image generation
+            const response = await openai.responses.create({
+                model: Config.openai_model,
+                input: enhancedPrompt,
+                tools: [{type: "image_generation"}],
+            });
+
+            // Extract the image data from the response
+            const imageData = response.output
+                .filter((output) => output.type === "image_generation_call")
+                .map((output) => output.result);
+
+            if (imageData.length === 0) {
+                throw new Error('No image was generated by the model');
+            }
+
+            const imageBase64 = imageData[0];
+            if (!imageBase64) {
+                throw new Error('No image data received');
+            }
+
+            // Convert base64 to buffer
+            const imageBuffer = Buffer.from(imageBase64, 'base64');
+
+            // Create Discord attachment
+            const attachment = new AttachmentBuilder(imageBuffer, {
+                name: 'generated-image.png'
+            });
+
+            // Send the image with details
+            await interaction.editReply({
+                content: `🎨 **Generated Image**\n**Prompt:** ${enhancedPrompt}\n**Size:** ${size}\n**Quality:** ${quality}\n**Style:** ${style}`,
+                files: [attachment]
+            });
+
+        } catch (error) {
+            console.error('Error generating image:', error);
+            await interaction.editReply(`❌ Failed to generate image: ${error.message}`);
+        }
+    }
+}

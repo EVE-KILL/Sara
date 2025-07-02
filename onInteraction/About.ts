@@ -1,13 +1,13 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { EmbedBuilder } from 'discord.js'; // Use MessageEmbed if you're using an older version of discord.js
+import { EmbedBuilder, MessageFlags } from 'discord.js'; // Use MessageEmbed if you're using an older version of discord.js
 
 export const command = {
     name: 'about',
     description: 'Emits the bot version and other information'
 };
 
-export default async function About(interaction, client) {
+export default async function About(interaction: any, client: any) {
     if (interaction.commandName === 'about') {
         // Get version from package.json
         const packageJsonPath = path.resolve('package.json');
@@ -15,7 +15,7 @@ export default async function About(interaction, client) {
         const { version } = JSON.parse(packageJson);
         // Create an invite link for the bot, not the guild
         // Give it permission to send messages and embed links
-        const inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=274881563713&scope=bot`;
+        const inviteLink = `https://discord.com/api/oauth2/authorize?client_id=${client.user.id}&permissions=274881571905&scope=bot`;
 
         // Create an embed message
         const embed = new EmbedBuilder()
@@ -33,7 +33,7 @@ export default async function About(interaction, client) {
         // Send the embed as a reply
         await interaction.reply({
             embeds: [embed],
-            ephemeral: true
+            flags: MessageFlags.Ephemeral
         });
     }
 }
