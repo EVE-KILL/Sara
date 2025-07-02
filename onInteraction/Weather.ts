@@ -252,7 +252,7 @@ async function deriveLocationFromMemories(memories: any[]): Promise<string | nul
                 }
             ],
             temperature: 0.1,
-            max_tokens: 50
+            max_completion_tokens: 50
         });
 
         const location = completion.choices[0]?.message?.content?.trim();

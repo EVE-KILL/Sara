@@ -103,7 +103,7 @@ async function deriveTimezoneFromLocation(location: string): Promise<string | nu
                 }
             ],
             temperature: 0.1,
-            max_tokens: 50
+            max_completion_tokens: 50
         });
 
         const timezone = completion.choices[0]?.message?.content?.trim();

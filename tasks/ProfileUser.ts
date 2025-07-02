@@ -258,7 +258,7 @@ async function analyzeCommunicationStyle(openai: OpenAI, messageSamples: any[]) 
             }
         ],
         temperature: 0.3,
-        max_tokens: 500
+        max_completion_tokens: 500
     });
 
     return completion.choices[0]?.message?.content || 'Analysis failed';
@@ -281,7 +281,7 @@ async function analyzePsychologicalProfile(openai: OpenAI, messageSamples: any[]
             }
         ],
         temperature: 0.3,
-        max_tokens: 1000
+        max_completion_tokens: 1000
     });
 
     return completion.choices[0]?.message?.content || 'Analysis failed';
@@ -304,7 +304,7 @@ async function analyzeInterests(openai: OpenAI, messageSamples: any[]) {
             }
         ],
         temperature: 0.3,
-        max_tokens: 1000
+        max_completion_tokens: 1000
     });
 
     return completion.choices[0]?.message?.content || 'Analysis failed';
@@ -327,7 +327,7 @@ async function analyzeRelationships(openai: OpenAI, messageSamples: any[]) {
             }
         ],
         temperature: 0.4,
-        max_tokens: 2500
+        max_completion_tokens: 2500
     });
 
     return completion.choices[0]?.message?.content || 'Analysis failed';
@@ -350,7 +350,7 @@ async function predictBehavior(openai: OpenAI, messageSamples: any[]) {
             }
         ],
         temperature: 0.5,
-        max_tokens: 2500
+        max_completion_tokens: 2500
     });
 
     return completion.choices[0]?.message?.content || 'Analysis failed';
@@ -381,7 +381,7 @@ What unconscious patterns and hidden aspects of their personality are they revea
             }
         ],
         temperature: 0.6,
-        max_tokens: 2500
+        max_completion_tokens: 2500
     });
 
     return completion.choices[0]?.message?.content || 'Analysis failed';

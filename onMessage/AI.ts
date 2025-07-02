@@ -1,6 +1,5 @@
-import { splitMessageIntoChunks } from '../helper.js';
+import { splitMessageIntoChunks, processWithToolsEmbed, loadTools, generateSystemPromptWithMemories } from '../helper.js';
 import { Config } from '../config.js';
-import { processWithToolsEmbed } from '../toolHelper.js';
 import { database } from '../database.js';
 import OpenAI from 'openai';
 
@@ -59,7 +58,7 @@ async function getImageDescription(imageUrls: any[], openai: OpenAI, userMessage
                     ]
                 }
             ],
-            max_tokens: 300
+            max_completion_tokens: 300
         });
 
         return visionCompletion.choices?.[0]?.message?.content || 'Unable to describe image.';
@@ -186,14 +185,7 @@ export default async function AI(client: any, message: any, botReply: any = null
 
         // Add the systemPrompt as the first message with user memories
         const userMemories = database.getUserMemories(message.author.id);
-        let systemPromptWithMemories = Config.systemPrompt;
-
-        if (userMemories.length > 0) {
-            const memoryText = userMemories
-                .map(memory => `${memory.memory_key}: ${memory.memory_value}`)
-                .join(', ');
-            systemPromptWithMemories += `\n\nWhat I remember about this user: ${memoryText}`;
-        }
+        const systemPromptWithMemories = await generateSystemPromptWithMemories(userMemories);
 
         chatHistory.unshift({
             role: 'system' as const,
@@ -263,8 +255,11 @@ export default async function AI(client: any, message: any, botReply: any = null
                 return;
             }
 
+            // Load tools for this request
+            const { tools, toolExecutors } = await loadTools('./tools');
+
             // Generate response using OpenAI with tools (with embeds)
-            const result = await processWithToolsEmbed(openai, chatHistory, message, client);
+            const result = await processWithToolsEmbed(openai, chatHistory, message, client, tools, toolExecutors);
 
             // Replace <@name> and @name with proper <@id>
             const formattedReply = await replaceMentionsWithIds(result.content || '', message.guild);

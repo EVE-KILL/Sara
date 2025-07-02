@@ -138,7 +138,7 @@ async function deriveNewsPreferences(memories: any[]): Promise<{ country?: strin
                 }
             ],
             temperature: 0.1,
-            max_tokens: 100
+            max_completion_tokens: 100
         });
 
         const responseText = completion.choices[0]?.message?.content?.trim();
@@ -175,7 +175,7 @@ async function deriveCountryFromLocation(location: string): Promise<string | nul
                 }
             ],
             temperature: 0.1,
-            max_tokens: 10
+            max_completion_tokens: 10
         });
 
         const country = completion.choices[0]?.message?.content?.trim();

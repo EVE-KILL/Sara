@@ -15,6 +15,7 @@
     "@types/bun": "^1.2.17",
     "chalk": "^5.4.1",
     "discord.js": "^14.21.0",
+    "instagram-url-direct": "^2.0.7",
     "moment": "^2.30.1",
     "openai": "^5.8.2"
   }

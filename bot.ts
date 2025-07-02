@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
-import { loadPlugins } from './helper.js';
+import { loadPlugins, loadTools } from './helper.js';
 import { Config } from './config.js';
 import { database } from './database.js';
 import { replyCache } from './onMessage/AI.js'; // Import replyCache from AI plugin
@@ -129,6 +129,15 @@ client.on('ready', async () => {
         await loadPlugins('./onMessage', messagePlugins, 'message');
         console.log('All plugins loaded successfully!');
 
+        // Load tools
+        console.log('Loading tools...');
+        try {
+            globalTools = await loadTools('./tools');
+            console.log(`✅ Successfully loaded ${globalTools.tools.length} tools at startup!`);
+        } catch (error) {
+            console.error('❌ Failed to load tools at startup:', error);
+        }
+
         // Initialize Reddit access token
         await initializeRedditAccessToken();
 
@@ -150,6 +159,9 @@ client.on('ready', async () => {
 const interactionPlugins: any[] = [];
 const messagePlugins: any[] = [];
 let pluginsLoaded = false;
+
+// Tools storage
+let globalTools: any = null;
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand() || !pluginsLoaded) return;
@@ -265,3 +277,8 @@ process.on('SIGINT', async () => {
     await client.destroy();
     process.exit();
 });
+
+// Export function to get globally loaded tools
+export function getGlobalTools() {
+    return globalTools;
+}

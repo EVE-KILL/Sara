@@ -1,5 +1,5 @@
 import { Config } from '../config.js';
-import { generateVoiceResponse, createSpeechFiles, sendVoiceResponse } from '../helper.js';
+import { generateVoiceResponse, createSpeechFiles, sendVoiceResponse, generateSystemPrompt } from '../helper.js';
 import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
@@ -141,9 +141,10 @@ export default async function AIVoice(client: any, message: any) {
 
         // Add system prompt if it exists, or create new one
         if (!systemPrompt) {
+            const baseSystemPrompt = await generateSystemPrompt();
             systemPrompt = {
                 role: 'system' as const,
-                content: Config.systemPrompt + '\n\nNote: You are responding to voice messages in a direct message conversation, so keep your responses conversational and natural for speech.',
+                content: baseSystemPrompt + '\n\nNote: You are responding to voice messages in a direct message conversation, so keep your responses conversational and natural for speech.',
                 timestamp: currentTime
             };
         }
