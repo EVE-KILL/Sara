@@ -378,3 +378,28 @@ export class InteractiveCLI {
         }
     }
 }
+
+// Health check function for Docker
+export function performHealthCheck(): boolean {
+    try {
+        // Basic health check - verify that the bot process is running
+        // In a real deployment, you might want to check Discord connection status
+        return process.uptime() > 0;
+    } catch (error) {
+        console.error('Health check failed:', error);
+        return false;
+    }
+}
+
+// Command line argument processing
+const args = process.argv.slice(2);
+if (args.includes('--health-check')) {
+    const isHealthy = performHealthCheck();
+    if (isHealthy) {
+        console.log('✅ Health check passed');
+        process.exit(0);
+    } else {
+        console.log('❌ Health check failed');
+        process.exit(1);
+    }
+}

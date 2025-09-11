@@ -1,0 +1,90 @@
+version: 2
+updates:
+# Bun/npm dependencies
+- package-ecosystem: 'npm'
+  directory: '/'
+  schedule:
+    interval: 'weekly'
+    day: 'monday'
+    time: '09:00'
+  groups:
+    discord-ecosystem:
+      patterns:
+      - "discord.js"
+      - "@discord*"
+    openai-ecosystem:
+      patterns:
+      - "openai"
+      - "@openai*"
+    types-dependencies:
+      patterns:
+      - "@types/*"
+      dependency-type: "development"
+    social-media-apis:
+      patterns:
+      - "*tiktok*"
+      - "*instagram*"
+      - "*youtube*"
+      - "*reddit*"
+    dev-dependencies:
+      dependency-type: "development"
+  open-pull-requests-limit: 10
+  versioning-strategy: 'auto'
+  ignore:
+  # Ignore patch updates to reduce noise
+  - dependency-name: "*"
+    update-types: [ "version-update:semver-patch" ]
+  # Ignore specific packages that might break compatibility
+  - dependency-name: "bun-types"
+    update-types: [ "version-update:semver-major" ]
+  labels:
+  - "dependencies"
+  - "bot"
+  assignees:
+  - "karbowiak"
+  commit-message:
+    prefix: "deps"
+    include: "scope"
+
+# GitHub Actions updates
+- package-ecosystem: 'github-actions'
+  directory: '/'
+  schedule:
+    interval: 'weekly'
+    day: 'monday'
+    time: '10:00'
+  groups:
+    build-actions:
+      patterns:
+      - "*build*"
+      - "*docker*"
+      - "*setup*"
+    security-actions:
+      patterns:
+      - "*security*"
+      - "*trivy*"
+      - "*codeql*"
+  open-pull-requests-limit: 5
+  labels:
+  - "ci-cd"
+  - "dependencies"
+  assignees:
+  - "karbowiak"
+  commit-message:
+    prefix: "ci"
+    include: "scope"
+
+# Docker updates
+- package-ecosystem: 'docker'
+  directory: '/'
+  schedule:
+    interval: 'weekly'
+    day: 'tuesday'
+    time: '09:00'
+  labels:
+  - "docker"
+  - "dependencies"
+  assignees:
+  - "karbowiak"
+  commit-message:
+    prefix: "docker"

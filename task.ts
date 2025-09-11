@@ -15,7 +15,7 @@ const client = new Client({
 // Array to hold the loaded tasks
 const tasks = new Map();
 
-client.on('ready', async () => {
+client.on('clientReady', async () => {
     if (client.user) {
         // Load all tasks
         await loadTasks('./tasks', tasks);
