@@ -5,7 +5,7 @@ import { IService } from '../../types/Services.js';
  */
 export class ExternalIntegrationsService implements IService {
     name = 'ExternalIntegrations';
-    
+
     private refreshIntervals: NodeJS.Timeout[] = [];
 
     /**
@@ -13,10 +13,10 @@ export class ExternalIntegrationsService implements IService {
      */
     async initialize(): Promise<void> {
         console.log('🔗 Initializing external integrations...');
-        
+
         // Initialize Reddit token refresh
         await this.initializeRedditIntegration();
-        
+
         console.log('✅ External integrations initialized');
     }
 
@@ -27,11 +27,11 @@ export class ExternalIntegrationsService implements IService {
         try {
             // Import Reddit functions dynamically to avoid potential circular dependencies
             const { initializeRedditAccessToken, refreshRedditAccessToken } = await import('../../redditAccessToken.js');
-            
+
             // Initialize the token
             await initializeRedditAccessToken();
             console.log('✅ Reddit integration initialized');
-            
+
             // Setup periodic token refresh (every 30 minutes)
             const refreshInterval = setInterval(async () => {
                 try {
@@ -45,7 +45,7 @@ export class ExternalIntegrationsService implements IService {
 
             this.refreshIntervals.push(refreshInterval);
             console.log('🔄 Reddit token refresh scheduled');
-            
+
         } catch (error) {
             console.error('❌ Failed to initialize Reddit integration:', error);
         }
@@ -113,11 +113,11 @@ export class ExternalIntegrationsService implements IService {
      */
     async cleanup(): Promise<void> {
         console.log('🧹 Cleaning up external integrations...');
-        
+
         // Clear all refresh intervals
         this.refreshIntervals.forEach(interval => clearInterval(interval));
         this.refreshIntervals = [];
-        
+
         console.log('✅ External integrations cleanup completed');
     }
 }

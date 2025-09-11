@@ -71,7 +71,7 @@ export class Container implements IContainer {
      */
     async initializeAll(): Promise<void> {
         console.log('🚀 Initializing all services...');
-        
+
         for (const [name, service] of this.services) {
             if (service && typeof service.initialize === 'function') {
                 try {
@@ -89,7 +89,7 @@ export class Container implements IContainer {
      */
     async cleanupAll(): Promise<void> {
         console.log('🧹 Cleaning up all services...');
-        
+
         for (const [name, service] of this.services) {
             if (service && typeof service.cleanup === 'function') {
                 try {

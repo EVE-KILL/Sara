@@ -7,12 +7,12 @@ import { IService } from '../../types/Services.js';
  */
 export class AIService implements IService {
     name = 'AI';
-    
+
     private openai: OpenAI;
     private tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [];
     private toolExecutors = new Map<string, Function>();
     private systemPrompts: string[] = [];
-    
+
     constructor() {
         this.openai = new OpenAI({
             apiKey: Config.openai_api_key
@@ -24,26 +24,26 @@ export class AIService implements IService {
      */
     async initialize(): Promise<void> {
         console.log('🤖 Initializing AI service...');
-        
+
         // Validate API key
         if (!Config.openai_api_key) {
             console.warn('⚠️  OpenAI API key not configured');
             return;
         }
-        
+
         console.log('✅ AI service initialized');
     }
 
     /**
      * Set tools for AI functionality
      */
-    setTools(tools: OpenAI.Chat.Completions.ChatCompletionTool[], 
-             toolExecutors: Map<string, Function>, 
+    setTools(tools: OpenAI.Chat.Completions.ChatCompletionTool[],
+             toolExecutors: Map<string, Function>,
              systemPrompts: string[]): void {
         this.tools = tools;
         this.toolExecutors = toolExecutors;
         this.systemPrompts = systemPrompts;
-        
+
         console.log(`🛠️  Loaded ${tools.length} AI tools`);
     }
 
@@ -80,17 +80,17 @@ export class AIService implements IService {
      */
     async executeTool(toolCall: any, message: any, client: any, useEmbed: boolean = false): Promise<any> {
         const { name, arguments: args } = toolCall.function;
-        
+
         console.log(`🔧 Executing tool: ${name}`);
-        
+
         try {
             const parsedArgs = JSON.parse(args);
             const toolExecutor = this.toolExecutors.get(name);
-            
+
             if (!toolExecutor) {
                 throw new Error(`Tool executor not found: ${name}`);
             }
-            
+
             return await toolExecutor(parsedArgs, message, client, useEmbed);
         } catch (error) {
             console.error(`❌ Error executing tool ${name}:`, error);
@@ -114,7 +114,7 @@ export class AIService implements IService {
 
         // Generate system prompt
         const systemPrompt = this.generateSystemPrompt();
-        
+
         // Build chat history
         const messages: any[] = [
             {
@@ -142,7 +142,7 @@ export class AIService implements IService {
         // Handle tool calls if present
         if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
             const embeds: any[] = [];
-            
+
             // Add the assistant message to conversation
             messages.push(responseMessage);
 
@@ -150,7 +150,7 @@ export class AIService implements IService {
             for (const toolCall of responseMessage.tool_calls) {
                 try {
                     const toolResult = await this.executeTool(toolCall, message, client, useEmbed);
-                    
+
                     // Handle different result types
                     if (toolResult && typeof toolResult === 'object' && 'data' in toolResult) {
                         embeds.push(toolResult);
@@ -203,7 +203,7 @@ export class AIService implements IService {
 
         if (this.tools.length > 0) {
             systemPrompt += '\n\nYou have access to the following tools:\n';
-            
+
             const toolDescriptions = this.tools.map(tool => {
                 const name = tool.function.name.replace(/([A-Z])/g, ' $1').trim();
                 const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
@@ -240,7 +240,7 @@ export class AIService implements IService {
     async speechToText(audioBuffer: Buffer): Promise<string> {
         // Create a File-like object from buffer
         const audioFile = new File([audioBuffer], 'audio.mp3', { type: 'audio/mpeg' });
-        
+
         const response = await this.openai.audio.transcriptions.create({
             file: audioFile,
             model: Config.voice_model || 'whisper-1'

@@ -14,7 +14,7 @@ export class MessageUtils {
         const originalAuthorName = chalk.cyan(message.author.username);
         const serverName = chalk.magenta(message.guild ? message.guild.name : 'DM');
         const channelName = chalk.yellow(message.channel.name || 'DM');
-        
+
         // Convert IDs in the message content to names
         let content = message.content.replace(/<@!?(.*?)>/g, (match: string, id: string) => {
             if (message.guild) {
@@ -25,7 +25,7 @@ export class MessageUtils {
                 return match;
             }
         });
-        
+
         const logMessage = `${timestamp} / ${authorName} (${originalAuthorName}) / #${channelName} / ${serverName}: ${chalk.white(content)}`;
         console.log(logMessage);
     }
@@ -68,7 +68,7 @@ export class MessageUtils {
      * Check if a message mentions a specific user
      */
     static mentionsUser(message: any, userId: string): boolean {
-        return message.content.includes(`<@${userId}>`) || 
+        return message.content.includes(`<@${userId}>`) ||
                message.content.includes(`<@!${userId}>`);
     }
 

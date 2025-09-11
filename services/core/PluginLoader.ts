@@ -11,7 +11,7 @@ import { PluginLoadResult, ToolLoadResult } from '../../types/Internal.js';
  */
 export class PluginLoaderService implements IPluginLoader {
     name = 'PluginLoader';
-    
+
     private toolsCache: {
         tools: OpenAI.Chat.Completions.ChatCompletionTool[],
         toolExecutors: Map<string, Function>,
@@ -24,7 +24,7 @@ export class PluginLoaderService implements IPluginLoader {
     async loadInteractionPlugins(directory: string): Promise<any[]> {
         console.log('🔌 Loading interaction plugins...');
         const result = await this.loadPluginsFromDirectory(directory, 'interaction');
-        
+
         if (result.commands.length > 0) {
             await this.registerSlashCommands(result.commands);
         }
@@ -39,7 +39,7 @@ export class PluginLoaderService implements IPluginLoader {
     async loadMessagePlugins(directory: string): Promise<any[]> {
         console.log('🔌 Loading message plugins...');
         const result = await this.loadPluginsFromDirectory(directory, 'message');
-        
+
         console.log(`✅ Loaded ${result.plugins.length} message plugins`);
         return result.plugins;
     }
@@ -136,11 +136,11 @@ export class PluginLoaderService implements IPluginLoader {
             try {
                 console.log(`🔧 Loading ${type} plugin: ${file}`);
                 const { default: handler, command } = await import(path.join(pluginPath, file));
-                
+
                 if (command) {
                     commands.push(command);
                 }
-                
+
                 if (handler) {
                     plugins.push(handler);
                 } else {

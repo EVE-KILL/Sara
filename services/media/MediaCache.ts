@@ -7,7 +7,7 @@ import { MediaResponseData } from '../../types/Internal.js';
  */
 export class MediaCacheService implements IMediaCacheService {
     name = 'MediaCache';
-    
+
     private mediaResponseCache = new Map<string, MediaResponseData>();
     private readonly MEDIA_RESPONSE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
@@ -41,7 +41,7 @@ export class MediaCacheService implements IMediaCacheService {
         }
 
         // Check if the user explicitly mentioned the bot in the message content
-        const explicitMention = message.content.includes(`<@${clientId}>`) || 
+        const explicitMention = message.content.includes(`<@${clientId}>`) ||
                                message.content.includes(`<@!${clientId}>`);
         if (explicitMention) {
             console.log(`✅ Allowing AI due to explicit bot mention`);
@@ -85,7 +85,7 @@ export class MediaCacheService implements IMediaCacheService {
      */
     getStats(): { total: number, byType: Record<string, number> } {
         const stats: Record<string, number> = {};
-        
+
         for (const mediaData of this.mediaResponseCache.values()) {
             stats[mediaData.type] = (stats[mediaData.type] || 0) + 1;
         }

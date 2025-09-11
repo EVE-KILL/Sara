@@ -8,7 +8,7 @@ import { CleanupStats, FileCleanupOptions } from '../../types/Internal.js';
  */
 export class FileCleanupService implements IFileCleanupService {
     name = 'FileCleanup';
-    
+
     private intervals: NodeJS.Timeout[] = [];
     private tempDir: string;
 
@@ -182,7 +182,7 @@ export class FileCleanupService implements IFileCleanupService {
      */
     async cleanup(): Promise<void> {
         this.stopPeriodicCleanup();
-        
+
         // Clean up all temp files regardless of age
         try {
             if (fs.existsSync(this.tempDir)) {
