@@ -260,7 +260,6 @@ async function generateMessageSummary(messages: DiscordMessage[], timeQuery: str
                 { role: 'user', content: prompt }
             ],
             max_completion_tokens: 500,
-            temperature: 0.3
         });
 
         return completion.choices?.[0]?.message?.content || 'Unable to generate summary.';

@@ -129,8 +129,7 @@ Only return the JSON, no other text.`
                     role: 'user',
                     content: information
                 }
-            ],
-            temperature: 0.1
+            ]
         });
 
         const responseText = completion.choices[0]?.message?.content?.trim();

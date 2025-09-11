@@ -102,7 +102,6 @@ async function deriveTimezoneFromLocation(location: string): Promise<string | nu
                     content: `What is the timezone for: ${location}`
                 }
             ],
-            temperature: 0.1,
             max_completion_tokens: 50
         });
 

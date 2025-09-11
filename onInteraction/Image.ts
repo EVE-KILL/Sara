@@ -19,8 +19,8 @@ export const command = {
             required: false,
             choices: [
                 { name: '1024x1024 (Square)', value: '1024x1024' },
-                { name: '1792x1024 (Landscape)', value: '1792x1024' },
-                { name: '1024x1792 (Portrait)', value: '1024x1792' }
+                { name: '1024x1792 (Landscape)', value: '1024x1792' },
+                { name: '1792x1024 (Portrait)', value: '1792x1024' }
             ]
         },
         {
@@ -82,13 +82,6 @@ export default async function Image(interaction, client) {
                 return;
             }
 
-            // Check if the model supports image generation
-            const supportedModels = ['gpt-4.1', 'gpt-4.1-mini', 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo'];
-            if (!supportedModels.includes(Config.openai_model)) {
-                await interaction.editReply(`❌ Image generation is not supported with model ${Config.openai_model}. Supported models: ${supportedModels.join(', ')}`);
-                return;
-            }
-
             await interaction.editReply('🎨 Generating your image, please wait...');
 
             // Initialize OpenAI client
@@ -104,7 +97,7 @@ export default async function Image(interaction, client) {
 
             // Use the OpenAI library for image generation
             const response = await openai.responses.create({
-                model: Config.openai_model,
+                model: Config.openai_model_image,
                 input: enhancedPrompt,
                 tools: [{type: "image_generation"}],
             });

@@ -137,7 +137,6 @@ async function deriveNewsPreferences(memories: any[]): Promise<{ country?: strin
                     content: `User memories: ${memoryContext}`
                 }
             ],
-            temperature: 0.1,
             max_completion_tokens: 100
         });
 
@@ -174,7 +173,6 @@ async function deriveCountryFromLocation(location: string): Promise<string | nul
                     content: `Location: ${location}`
                 }
             ],
-            temperature: 0.1,
             max_completion_tokens: 10
         });
 

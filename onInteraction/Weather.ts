@@ -251,7 +251,6 @@ async function deriveLocationFromMemories(memories: any[]): Promise<string | nul
                     content: `User memories: ${memoryContext}`
                 }
             ],
-            temperature: 0.1,
             max_completion_tokens: 50
         });
 

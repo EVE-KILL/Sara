@@ -5,6 +5,7 @@ import { database } from './database.js';
 import { replyCache } from './onMessage/AI.js'; // Import replyCache from AI plugin
 import { voiceReplyCache } from './onMessage/AIVoice.js'; // Import voiceReplyCache from AIVoice plugin
 import { initializeRedditAccessToken, refreshRedditAccessToken } from './redditAccessToken.js';
+import { InteractiveCLI } from './cli.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -141,6 +142,10 @@ client.on('ready', async () => {
         // Initialize Reddit access token
         await initializeRedditAccessToken();
 
+        // Initialize CLI interface
+        cliInterface = new InteractiveCLI(client);
+        await cliInterface.initialize();
+
         pluginsLoaded = true;
 
         // Start cleanup jobs
@@ -163,6 +168,9 @@ let pluginsLoaded = false;
 // Tools storage
 let globalTools: any = null;
 
+// CLI interface
+let cliInterface: InteractiveCLI;
+
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand() || !pluginsLoaded) return;
     for (const plugin of interactionPlugins) {
@@ -181,6 +189,11 @@ client.on('messageCreate', async message => {
             console.error('Error fetching partial message:', error);
             return;
         }
+    }
+
+    // Ignore messages from bots (including our own)
+    if (message.author.bot) {
+        return;
     }
 
     // Trigger all message plugins on message creation

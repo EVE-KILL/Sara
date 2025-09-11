@@ -64,8 +64,8 @@ async function compressVideo(inputPath: string, outputPath: string, targetSizeMB
 }
 
 export default async function TikTok(client: Client, message: Message) {
-    // Check if the message contains a TikTok URL
-    const tiktokRegex = /https?:\/\/(?:www\.)?tiktok\.com\/@[\w\.-]+\/video\/\d+(?:\?[^\s]*)?/gi;
+    // Check if the message contains a TikTok URL (both standard and shortened formats)
+    const tiktokRegex = /https?:\/\/(?:(?:www\.)?tiktok\.com\/@[\w\.-]+\/video\/\d+(?:\?[^\s]*)?|vm\.tiktok\.com\/[\w\.-]+)/gi;
     const matches = message.content.match(tiktokRegex);
 
     if (!matches) {

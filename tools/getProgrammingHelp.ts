@@ -59,7 +59,6 @@ Be thorough but concise, and always prioritize correctness and clarity.`;
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt }
             ],
-            temperature: 0.1, // Lower temperature for more consistent technical answers
             max_completion_tokens: 4000
         });
 

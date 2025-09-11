@@ -246,7 +246,7 @@ async function analyzeCommunicationStyle(openai: OpenAI, messageSamples: any[]) 
     const allMessages = messageSamples.map(msg => msg.content).join('\\n');
 
     const completion = await openai.chat.completions.create({
-        model: Config.openai_model_profile,
+        model: Config.openai_model_cheap,
         messages: [
             {
                 role: 'system',
@@ -257,7 +257,6 @@ async function analyzeCommunicationStyle(openai: OpenAI, messageSamples: any[]) 
                 content: `Analyze this person's complete communication style from ALL their messages (${messageSamples.length} total messages):\n\n${allMessages}`
             }
         ],
-        temperature: 0.3,
         max_completion_tokens: 500
     });
 
@@ -269,7 +268,7 @@ async function analyzePsychologicalProfile(openai: OpenAI, messageSamples: any[]
     const allMessages = messageSamples.map(msg => msg.content).join('\\n');
 
     const completion = await openai.chat.completions.create({
-        model: Config.openai_model_profile,
+        model: Config.openai_model_cheap,
         messages: [
             {
                 role: 'system',
@@ -280,7 +279,6 @@ async function analyzePsychologicalProfile(openai: OpenAI, messageSamples: any[]
                 content: `Analyze this person's complete psychological profile from ALL their messages (${messageSamples.length} total messages):\n\n${allMessages}`
             }
         ],
-        temperature: 0.3,
         max_completion_tokens: 1000
     });
 
@@ -292,7 +290,7 @@ async function analyzeInterests(openai: OpenAI, messageSamples: any[]) {
     const allMessages = messageSamples.map(msg => msg.content).join('\\n');
 
     const completion = await openai.chat.completions.create({
-        model: Config.openai_model_profile,
+        model: Config.openai_model_cheap,
         messages: [
             {
                 role: 'system',
@@ -303,7 +301,6 @@ async function analyzeInterests(openai: OpenAI, messageSamples: any[]) {
                 content: `Identify all interests and hobbies from ALL their messages (${messageSamples.length} total messages):\n\n${allMessages}`
             }
         ],
-        temperature: 0.3,
         max_completion_tokens: 1000
     });
 
@@ -315,7 +312,7 @@ async function analyzeRelationships(openai: OpenAI, messageSamples: any[]) {
     const allMessages = messageSamples.map(msg => msg.content).join('\\n');
 
     const completion = await openai.chat.completions.create({
-        model: Config.openai_model_profile,
+        model: Config.openai_model_cheap,
         messages: [
             {
                 role: 'system',
@@ -326,7 +323,6 @@ async function analyzeRelationships(openai: OpenAI, messageSamples: any[]) {
                 content: `Analyze all relationship and social patterns from ALL their messages (${messageSamples.length} total messages):\n\n${allMessages}`
             }
         ],
-        temperature: 0.4,
         max_completion_tokens: 2500
     });
 
@@ -338,7 +334,7 @@ async function predictBehavior(openai: OpenAI, messageSamples: any[]) {
     const allMessages = messageSamples.map(msg => msg.content).join('\\n');
 
     const completion = await openai.chat.completions.create({
-        model: Config.openai_model_profile,
+        model: Config.openai_model_cheap,
         messages: [
             {
                 role: 'system',
@@ -349,7 +345,6 @@ async function predictBehavior(openai: OpenAI, messageSamples: any[]) {
                 content: `Predict future behaviors based on ALL their communication patterns (${messageSamples.length} total messages):\n\n${allMessages}`
             }
         ],
-        temperature: 0.5,
         max_completion_tokens: 2500
     });
 
@@ -363,7 +358,7 @@ async function generateCreepyInsights(openai: OpenAI, messageSamples: any[], pro
     const timePatterns = JSON.stringify(profile.timePatterns);
 
     const completion = await openai.chat.completions.create({
-        model: Config.openai_model_profile,
+        model: Config.openai_model_cheap,
         messages: [
             {
                 role: 'system',
@@ -380,7 +375,6 @@ Time Patterns: ${timePatterns}
 What unconscious patterns and hidden aspects of their personality are they revealing? What secrets are they unknowingly sharing?`
             }
         ],
-        temperature: 0.6,
         max_completion_tokens: 2500
     });
 
