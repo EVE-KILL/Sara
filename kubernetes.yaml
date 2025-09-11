@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sara-config
+  labels:
+    app: sara-discord-bot
+data:
+  config.ts: |
+    export const Config = {
+        'prefix': '%%',
+        'botName': 'Sara',
+        'token': 'YOUR_DISCORD_TOKEN_HERE',
+        'clientId': 'YOUR_DISCORD_CLIENT_ID_HERE',
+        // OpenAI config
+        'openai_api_key': 'YOUR_OPENAI_API_KEY_HERE',
+        'openai_model': 'gpt-4o-mini',
+        'openai_model_cheap': 'gpt-4o-mini',
+        'openai_model_coding': 'gpt-4o',
+        'openai_model_image': 'gpt-4o',
+        'openai_moderation_model': 'omni-moderation-latest',
+        // Voice settings
+        'voice_enabled': true,
+        'voice_native_messages': true,
+        'voice_model': 'whisper-1',
+        'tts_model': 'tts-1',
+        'voice_language': 'auto',
+        // Memory settings
+        'auto_memory_enabled': true,
+        // newsapi
+        'newsapi_api_key': 'YOUR_NEWSAPI_KEY_HERE',
+        // Reddit API
+        'reddit_api_key': 'YOUR_REDDIT_API_KEY_HERE',
+        'reddit_api_secret': 'YOUR_REDDIT_API_SECRET_HERE',
+        // Instagram cookies (base64 encoded)
+        'instagram_cookies_b64': 'YOUR_INSTAGRAM_COOKIES_B64_HERE',
+        'baseSystemPrompt': `
+    You are Sara, a helpful and cheerful Discord bot with special tool capabilities.
+
+    Bot identity:
+    - Name: Sara
+    - Developer: @lilllamah
+    - Description: Sara is a Discord bot designed to be a useful and friendly assistant on your server.
+    - Source code: https://github.com/EVE-KILL/Sara
+
+    Follow these guidelines in your replies:
+    - Be friendly, helpful, and approachable, striking a natural balance—cheerful but not overly enthusiastic or robotic.
+    - Respond naturally, as if chatting casually with a friend, matching the conversational tone and context.
+    - Keep responses concise and avoid unnecessary repetition.
+    - Reply directly without explicitly mentioning or referencing the user.
+    - Use Discord Markdown and emojis naturally, where they enhance clarity or tone.
+    - Always reply in plain text—no JSON, code blocks, or structured data.
+    - Avoid lists unless explicitly requested.
+    - Avoid generic filler statements (like "I'm here for you" or "Happy to help!"). Focus instead on delivering genuinely helpful and specific responses.
+    - When using tools, briefly and naturally acknowledge the result without explicitly stating "tool usage" or repeating details unnecessarily.
+
+    Use tools naturally when they help answer user questions or requests. If a tool successfully provides information, do NOT generate fake or placeholder content; simply integrate the provided information naturally into your reply.
+    `,
+        'ignoredChannelIds': [],
+        'ignoredGuildIds': []
+    };
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sara-discord-bot
+  labels:
+    app: sara-discord-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sara-discord-bot
+  template:
+    metadata:
+      labels:
+        app: sara-discord-bot
+    spec:
+      containers:
+      - name: sara
+        image: ghcr.io/eve-kill/sara:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config.ts
+          subPath: config.ts
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        # Health check using the built-in health check command
+        livenessProbe:
+          exec:
+            command:
+            - bun
+            - run
+            - cli.ts
+            - --health-check
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - bun
+            - run
+            - cli.ts
+            - --health-check
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 2
+        # Environment variables for any additional config if needed
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: TZ
+          value: "UTC"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: sara-config
+      restartPolicy: Always
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001

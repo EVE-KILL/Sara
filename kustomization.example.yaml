@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- kubernetes.yaml
+
+# ConfigMap generator for Sara configuration using file
+configMapGenerator:
+- name: sara-config
+  behavior: replace
+  files:
+  - config.ts=config.example.ts
+
+# Common labels applied to all resources
+commonLabels:
+  app: sara-discord-bot
+  version: v1
+
+# Namespace (optional)
+# namespace: sara-bot
+
+# Image transformations
+images:
+- name: ghcr.io/eve-kill/sara
+  newTag: latest

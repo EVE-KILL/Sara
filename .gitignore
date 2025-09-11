@@ -5,3 +5,6 @@ database.sqlite
 database.sqlite-shm
 database.sqlite-wal
 .vscode/
+
+# Kubernetes configs with real credentials
+kustomization.yaml
