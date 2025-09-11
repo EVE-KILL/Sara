@@ -6,6 +6,7 @@ import http from "http";
 import path from "path";
 import { execSync } from "child_process";
 import { Config } from "../config";
+import { markMediaResponse } from "../helper";
 
 // Helper function to create temporary cookies file
 function createCookiesFile(tempDir: string): string {
@@ -512,10 +513,13 @@ export default async function Instagram(client: Client, message: Message) {
                         }
 
                         // Send first batch as reply
-                        await message.reply({
+                        const botReply = await message.reply({
                             content,
                             files: batches[0]
                         });
+
+                        // Mark this as a media response to prevent AI from responding to replies
+                        markMediaResponse(botReply.id, 'instagram', message.channel.id, message.id);
 
                         // Send remaining batches as follow-up messages
                         for (let i = 1; i < batches.length; i++) {

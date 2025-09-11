@@ -6,6 +6,7 @@ import https from "https";
 import http from "http";
 import path from "path";
 import { execSync } from "child_process";
+import { markMediaResponse } from "../helper";
 
 // Helper function to compress video using ffmpeg
 async function compressVideo(inputPath: string, outputPath: string, targetSizeMB: number): Promise<boolean> {
@@ -171,10 +172,13 @@ export default async function TikTok(client: Client, message: Message) {
                                         const description = videoData.desc || "TikTok Video";
                                         const author = videoData.author?.nickname || "Unknown";
 
-                                        await message.reply({
+                                        const botReply = await message.reply({
                                             content: `🎵 **TikTok Video by ${author}** *(compressed from ${fileSizeInMB.toFixed(1)}MB to ${compressedSizeMB.toFixed(1)}MB)*\n${description.length > 100 ? description.substring(0, 100) + '...' : description}`,
                                             files: [attachment]
                                         });
+
+                                        // Mark this as a media response to prevent AI from responding to replies
+                                        markMediaResponse(botReply.id, 'tiktok', message.channel.id, message.id);
 
                                         // Clean up both files
                                         fs.unlinkSync(filePath);
@@ -221,10 +225,13 @@ export default async function TikTok(client: Client, message: Message) {
                             const description = videoData.desc || "TikTok Video";
                             const author = videoData.author?.nickname || "Unknown";
 
-                            await message.reply({
+                            const botReply = await message.reply({
                                 content: `🎵 **TikTok Video by ${author}**\n${description.length > 100 ? description.substring(0, 100) + '...' : description}`,
                                 files: [attachment]
                             });
+
+                            // Mark this as a media response to prevent AI from responding to replies
+                            markMediaResponse(botReply.id, 'tiktok', message.channel.id, message.id);
 
                             // Clean up the temporary file
                             fs.unlinkSync(filePath);

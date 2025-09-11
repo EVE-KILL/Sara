@@ -1,4 +1,4 @@
-import { splitMessageIntoChunks, processWithToolsEmbed, loadTools, generateSystemPromptWithMemories } from '../helper.js';
+import { splitMessageIntoChunks, processWithToolsEmbed, loadTools, generateSystemPromptWithMemories, shouldSuppressAIForMediaResponse } from '../helper.js';
 import { Config } from '../config.js';
 import { database } from '../database.js';
 import OpenAI from 'openai';
@@ -120,6 +120,11 @@ export default async function AI(client: any, message: any, botReply: any = null
     );
 
     if (hasVoiceAttachment) {
+        return;
+    }
+
+    // Check if this message should be suppressed due to media response context
+    if (shouldSuppressAIForMediaResponse(message, client.user.id)) {
         return;
     }
 

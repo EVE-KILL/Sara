@@ -15,6 +15,101 @@ let globalToolsCache: {
     systemPrompts: string[]
 } | null = null;
 
+// Media Response Tracking System - Generalized solution for preventing AI responses to media bot replies
+interface MediaResponseData {
+    type: string;           // 'instagram', 'tiktok', 'reddit', etc.
+    timestamp: number;      // When the bot replied
+    channelId: string;      // Channel where it happened
+    originalMessageId?: string; // The user message that triggered the media processing
+}
+
+const mediaResponseCache = new Map<string, MediaResponseData>(); // botMessageId -> data
+const MEDIA_RESPONSE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Mark a bot message as a media processing response to prevent AI from responding to replies
+ * @param botMessageId - The ID of the bot's reply message
+ * @param type - Type of media processing ('instagram', 'tiktok', etc.)
+ * @param channelId - Channel ID where this happened
+ * @param originalMessageId - Optional: the user message that triggered the processing
+ */
+export function markMediaResponse(botMessageId: string, type: string, channelId: string, originalMessageId?: string) {
+    mediaResponseCache.set(botMessageId, {
+        type,
+        timestamp: Date.now(),
+        channelId,
+        originalMessageId
+    });
+}
+
+/**
+ * Check if a user message is replying to a tracked media response
+ * @param message - The user message to check
+ * @param clientId - The bot's user ID to check for explicit mentions
+ * @returns true if this is a reply to media content and AI should be suppressed
+ */
+export function shouldSuppressAIForMediaResponse(message: any, clientId: string): boolean {
+    // Check if this message is a direct reply to a tracked media response
+    if (message.reference?.messageId) {
+        const referencedMessageId = message.reference.messageId;
+
+        if (mediaResponseCache.has(referencedMessageId)) {
+            const mediaData = mediaResponseCache.get(referencedMessageId)!;
+            return true;
+        }
+    }
+
+    // Check if the user explicitly mentioned the bot in the message content (not just Discord reply mentions)
+    const explicitMention = message.content.includes(`<@${clientId}>`) || message.content.includes(`<@!${clientId}>`);
+    if (explicitMention) {
+        return false; // Allow AI if user explicitly typed @BotName
+    }
+
+    // Check for recent media responses in the same channel (for non-reply messages)
+    const recentCutoff = Date.now() - (2 * 60 * 1000); // 2 minutes
+    for (const [botMessageId, mediaData] of mediaResponseCache.entries()) {
+        if (mediaData.channelId === message.channel.id &&
+            mediaData.timestamp > recentCutoff) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Clean up old media response tracking entries to prevent memory leaks
+ */
+export function cleanupMediaResponseCache() {
+    const cutoff = Date.now() - MEDIA_RESPONSE_TIMEOUT;
+    let cleaned = 0;
+
+    for (const [botMessageId, mediaData] of mediaResponseCache.entries()) {
+        if (mediaData.timestamp < cutoff) {
+            mediaResponseCache.delete(botMessageId);
+            cleaned++;
+        }
+    }
+
+    if (cleaned > 0) {
+        console.log(`🧹 Cleaned up ${cleaned} old media response entries`);
+    }
+}
+
+/**
+ * Get current media response cache stats (for debugging)
+ */
+export function getMediaResponseStats() {
+    const stats = new Map<string, number>();
+    for (const mediaData of mediaResponseCache.values()) {
+        stats.set(mediaData.type, (stats.get(mediaData.type) || 0) + 1);
+    }
+    return {
+        total: mediaResponseCache.size,
+        byType: Object.fromEntries(stats.entries())
+    };
+}
+
 // Function to log messages to the terminal with timestamp and context
 export const logMessageToTerminal = (message: any) => {
     const timestamp = chalk.green(moment(message.createdTimestamp).format('YYYY-MM-DD HH:mm:ss'));

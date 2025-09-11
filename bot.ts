@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, Partials } from 'discord.js';
-import { loadPlugins, loadTools } from './helper.js';
+import { loadPlugins, loadTools, cleanupMediaResponseCache } from './helper.js';
 import { Config } from './config.js';
 import { database } from './database.js';
 import { replyCache } from './onMessage/AI.js'; // Import replyCache from AI plugin
@@ -111,7 +111,7 @@ const client = new Client({
     partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
-client.on('ready', async () => {
+client.on('clientReady', async () => {
     if (client.user) {
         console.log(`Logged in as ${client.user.tag}!`);
         // Emit invite link when we start the bot so we don't have to rely on the /about
@@ -152,10 +152,13 @@ client.on('ready', async () => {
         console.log('🧹 Starting TikTok cleanup job (runs every hour)');
         console.log('🎤 Starting voice file cleanup job (runs every 10 minutes)');
         console.log('🔑 Starting Reddit token refresh job (runs every 30 minutes)');
+        console.log('📝 Starting media response cache cleanup job (runs every 10 minutes)');
         cleanupTikTokFiles(); // Run initial TikTok cleanup
         cleanupVoiceFiles(); // Run initial voice cleanup
+        cleanupMediaResponseCache(); // Run initial media cache cleanup
         setInterval(cleanupTikTokFiles, 60 * 60 * 1000); // Run TikTok cleanup every hour
         setInterval(cleanupVoiceFiles, 10 * 60 * 1000); // Run voice cleanup every 10 minutes
+        setInterval(cleanupMediaResponseCache, 10 * 60 * 1000); // Run media cache cleanup every 10 minutes
         setInterval(refreshRedditToken, 30 * 60 * 1000); // Refresh Reddit token every 30 minutes
     }
 });
