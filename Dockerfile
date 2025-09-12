@@ -51,6 +51,8 @@ COPY --from=builder /app/onInteraction ./onInteraction
 COPY --from=builder /app/onMessage ./onMessage
 COPY --from=builder /app/tools ./tools
 COPY --from=builder /app/tasks ./tasks
+COPY --from=builder /app/services ./services
+COPY --from=builder /app/types ./types
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/temp /app/logs && \
