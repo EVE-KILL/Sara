@@ -21,7 +21,7 @@
     "instagram-private-api": "^1.46.1",
     "instagram-url-direct": "^2.0.7",
     "moment": "^2.30.1",
-    "openai": "^5.20.1"
+    "openai": "^6.1.0"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7"
